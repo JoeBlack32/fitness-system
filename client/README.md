@@ -1,73 +1,110 @@
-# React + TypeScript + Vite
+# Fitness System - Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend приложение для системы управления тренировками на React + TypeScript + Vite.
 
-Currently, two official plugins are available:
+## 🚀 Быстрый старт
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Установка зависимостей
 
-## React Compiler
-
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cd client
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Переменные окружения
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Создайте файл `.env` в папке `client/`:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+### Запуск dev сервера
+
+```bash
+npm run dev
+```
+
+Приложение откроется на `http://localhost:3000`
+
+### Сборка для production
+
+```bash
+npm run build
+```
+
+### Preview production build
+
+```bash
+npm run preview
+```
+
+## 📦 Структура проекта
+
+```
+client/
+├─ public/
+│  └─ index.html
+├─ src/
+│  ├─ api/           # Axios instance
+│  ├─ assets/        # Изображения, иконки
+│  ├─ components/    # React компоненты
+│  ├─ contexts/      # React Context (Auth)
+│  ├─ hooks/         # Custom hooks
+│  ├─ pages/         # Страницы приложения
+│  ├─ services/      # API сервисы
+│  ├─ types/         # TypeScript типы
+│  ├─ utils/         # Утилиты
+│  ├─ App.tsx
+│  ├─ main.tsx
+│  └─ index.css
+├─ package.json
+├─ tsconfig.json
+├─ vite.config.ts
+└─ tailwind.config.cjs
+```
+
+## 🛠 Технологии
+
+- **React 18** - UI библиотека
+- **TypeScript** - Типизация
+- **Vite** - Build tool
+- **React Router** - Роутинг
+- **Tailwind CSS** - Стилизация
+- **Axios** - HTTP клиент
+- **Recharts** - Графики
+- **Lucide React** - Иконки
+- **React Hot Toast** - Уведомления
+
+## 📋 Доступные скрипты
+
+- `npm run dev` - Запуск dev сервера
+- `npm run build` - Сборка проекта
+- `npm run preview` - Preview production сборки
+- `npm run lint` - Проверка кода
+
+## 🔧 Проблемы и решения
+
+### Ошибка: Cannot find module
+
+Убедитесь что установлены все зависимости:
+```bash
+rm -rf node_modules package-lock.json
+npm install
+```
+
+### Ошибка TypeScript
+
+Проверьте версию TypeScript:
+```bash
+npm install typescript@latest -D
+```
+
+### Порт 3000 занят
+
+Измените порт в `vite.config.ts`:
+```ts
+server: {
+  port: 3001, // или другой порт
+}
 ```
