@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './contexts/AuthContext'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
+import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
@@ -20,7 +21,13 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
 // Публичный роут (только для неавторизованных)
 const PublicRoute = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth()
-  return !user ? <>{children}</> : <Navigate to="/dashboard" replace />
+  return !user ? <>{children}</> : <Navigate to="/" replace />
+}
+
+// Главная страница (показывает Landing или Dashboard)
+const HomePage = () => {
+  const { user } = useAuth()
+  return user ? <Dashboard /> : <Landing />
 }
 
 function App() {
@@ -32,6 +39,7 @@ function App() {
       
       <main className="flex-grow">
         <Routes>
+          <Route path="/" element={<Landing />} />
           <Route
             path="/login"
             element={
@@ -88,8 +96,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
 

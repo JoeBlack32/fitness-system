@@ -46,18 +46,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const login = async (email: string, password: string) => {
+    // ВРЕМЕННЫЙ КОСТЫЛЬ: Пропускаем любой email/password
     try {
-      const response = await authService.login(email, password)
-      const { token, user } = response.data
+      // Имитируем задержку запроса
+      await new Promise(resolve => setTimeout(resolve, 500))
       
-      localStorage.setItem('token', token)
-      localStorage.setItem('user', JSON.stringify(user))
-      setUser(user)
+      const mockUser: User = {
+        id: '1',
+        name: email.split('@')[0], // Используем часть email как имя
+        email: email,
+        createdAt: new Date().toISOString()
+      }
       
-      toast.success(`Добро пожаловать, ${user.name}!`)
+      const mockToken = 'mock-token-' + Date.now()
+      
+      localStorage.setItem('token', mockToken)
+      localStorage.setItem('user', JSON.stringify(mockUser))
+      setUser(mockUser)
+      
+      toast.success(`Добро пожаловать, ${mockUser.name}!`)
       return { success: true }
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Ошибка авторизации'
+      const message = 'Ошибка авторизации'
       toast.error(message)
       return { success: false, error: message }
     }

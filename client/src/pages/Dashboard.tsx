@@ -1,4 +1,5 @@
 import { useAuth } from '../contexts/AuthContext'
+import { Link } from 'react-router-dom'
 import { Activity, TrendingUp, Calendar, Award } from 'lucide-react'
 
 const Dashboard = () => {
@@ -49,18 +50,18 @@ const Dashboard = () => {
           <div className="card">
             <h2 className="text-xl font-bold text-white mb-4">Быстрые действия</h2>
             <div className="space-y-3">
-              <a href="/workouts" className="block p-4 bg-dark-bg rounded-lg hover:bg-slate-800 transition-colors">
+              <Link to="/workouts" className="block p-4 bg-dark-bg rounded-lg hover:bg-slate-800 transition-colors">
                 <p className="font-semibold text-white">Начать тренировку</p>
                 <p className="text-sm text-gray-400">Запишите новую тренировку</p>
-              </a>
-              <a href="/programs" className="block p-4 bg-dark-bg rounded-lg hover:bg-slate-800 transition-colors">
+              </Link>
+              <Link to="/programs" className="block p-4 bg-dark-bg rounded-lg hover:bg-slate-800 transition-colors">
                 <p className="font-semibold text-white">Создать программу</p>
                 <p className="text-sm text-gray-400">Постройте план тренировок</p>
-              </a>
-              <a href="/nutrition" className="block p-4 bg-dark-bg rounded-lg hover:bg-slate-800 transition-colors">
+              </Link>
+              <Link to="/nutrition" className="block p-4 bg-dark-bg rounded-lg hover:bg-slate-800 transition-colors">
                 <p className="font-semibold text-white">Добавить прием пищи</p>
                 <p className="text-sm text-gray-400">Трекинг калорий и макросов</p>
-              </a>
+              </Link>
             </div>
           </div>
 
