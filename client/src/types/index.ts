@@ -28,25 +28,34 @@ export interface AuthResponse {
 
 // Workout types
 export interface Exercise {
-  id: string
+  id?: string
   name: string
   sets: number
-  reps: number
+  reps?: number
   weight?: number
   duration?: number
   notes?: string
 }
 
 export interface Workout {
-  id: string
-  userId: string
-  title: string
+  id?: string
+  userId?: string
+  muscleGroup: string // 'chest' | 'back' | 'arms' | 'legs'
   date: string
-  duration: number
+  dayOfWeek: string
   exercises: Exercise[]
   notes?: string
   intensity?: 'low' | 'medium' | 'high'
-  createdAt: string
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface CreateWorkoutData {
+  muscleGroup: string
+  date: string
+  dayOfWeek: string
+  exercises: Exercise[]
+  notes?: string
 }
 
 export interface WorkoutStats {
