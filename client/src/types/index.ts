@@ -132,3 +132,9 @@ export interface ApiError {
   message: string
   errors?: Record<string, string[]>
 }
+
+export interface RegisterPayload {
+  name: string
+  email: string
+  password: string
+}

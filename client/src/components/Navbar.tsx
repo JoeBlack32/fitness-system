@@ -9,7 +9,7 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const navLinks = [
-    { path: '/', label: 'Главная', icon: Home },
+    { path: '/dashboard', label: 'Главная', icon: Home },
     { path: '/workouts', label: 'Тренировки', icon: Dumbbell },
     { path: '/programs', label: 'Программы', icon: Calendar },
     { path: '/nutrition', label: 'Питание', icon: Apple },

@@ -36,10 +36,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     if (token && userData) {
       try {
-        setUser(JSON.parse(userData))
+        const parsedUser = JSON.parse(userData)
+        setUser(parsedUser)
       } catch (error) {
         console.error('Invalid user data:', error)
-        logout()
+        // Очищаем невалидные данные
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
       }
     }
     setLoading(false)
@@ -65,6 +68,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const register = async (userData: RegisterData) => {
     try {
+      // Проверка совпадения паролей на клиенте
+      if (userData.password !== userData.confirmPassword) {
+        toast.error('Пароли не совпадают')
+        return { success: false, error: 'Пароли не совпадают' }
+      }
+
+      // authService.register сам извлечёт нужные поля
       const response = await authService.register(userData)
       const { token, user } = response.data
       
@@ -72,7 +82,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem('user', JSON.stringify(user))
       setUser(user)
       
-      toast.success('Регистрация успешна!')
+      toast.success(`Добро пожаловать, ${user.name}!`)
       return { success: true }
     } catch (error: any) {
       const message = error.response?.data?.message || 'Ошибка регистрации'
@@ -100,6 +110,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     register,
     logout,
     updateUser,
+  }
+
+  // ВАЖНО: Ждём пока загрузится информация о пользователе
+  // Это предотвращает "мигание" Landing страницы при перезагрузке
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-dark-bg">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mx-auto mb-4"></div>
+          <p className="text-gray-400">Загрузка...</p>
+        </div>
+      </div>
+    )
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
