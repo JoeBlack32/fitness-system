@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { Link } from 'react-router-dom'
 import { Activity, TrendingUp, Calendar, Award, Dumbbell } from 'lucide-react'
 import { useWorkouts } from '../hooks/useWorkouts'
+import Lightning from '../components/Lightning'
 
 const Dashboard = () => {
   const { user } = useAuth()

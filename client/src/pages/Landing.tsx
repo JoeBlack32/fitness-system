@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Dumbbell, TrendingUp, Target, Calendar, Apple, BarChart3, Zap, Award, Users } from 'lucide-react'
 import Button from '../components/UI/Button'
+import Lightning from '../components/Lightning'
 
 const Landing = () => {
   const features = [
@@ -45,24 +46,38 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-dark-bg">
-      {/* Hero Section */}
+      {/* Hero Section with Lightning Background */}
       <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-600/20 via-purple-600/20 to-dark-bg"></div>
+        {/* Lightning Background */}
+        <div className="absolute inset-0 w-full h-full">
+          <Lightning
+            hue={230}
+            xOffset={0}
+            speed={0.5}
+            intensity={0.8}
+            size={1.2}
+          />
+        </div>
+        
+        {/* Overlay for better text readability */}
+        <div className="absolute inset-0 bg-dark-bg/40"></div>
+        
+        {/* Content */}
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
           <div className="text-center">
             {/* Logo */}
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-primary-600 to-primary-700 rounded-3xl mb-8 animate-fade-in">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-primary-600 to-primary-700 rounded-3xl mb-8 animate-fade-in shadow-2xl">
               <Dumbbell className="text-white" size={40} />
             </div>
 
             {/* Title */}
-            <h1 className="text-5xl lg:text-7xl font-bold text-white mb-6 animate-fade-in">
+            <h1 className="text-5xl lg:text-7xl font-bold text-white mb-6 animate-fade-in drop-shadow-lg">
               Твой путь к{' '}
               <span className="gradient-text">идеальной форме</span>
             </h1>
 
             {/* Subtitle */}
-            <p className="text-xl lg:text-2xl text-gray-300 mb-10 max-w-3xl mx-auto animate-fade-in">
+            <p className="text-xl lg:text-2xl text-gray-100 mb-10 max-w-3xl mx-auto animate-fade-in drop-shadow-md">
               Интеллектуальная система управления тренировками и спортивным прогрессом. 
               Достигайте целей быстрее с помощью умных технологий и персонализированного подхода.
             </p>
@@ -70,19 +85,19 @@ const Landing = () => {
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-slide-up">
               <Link to="/register">
-                <Button className="min-w-[200px]">
+                <Button className="min-w-[200px] shadow-xl">
                   Начать бесплатно
                 </Button>
               </Link>
               <Link to="/login">
-                <Button variant="secondary" className="min-w-[200px]">
+                <Button variant="secondary" className="min-w-[200px] shadow-lg">
                   Войти в аккаунт
                 </Button>
               </Link>
             </div>
 
             {/* Trust Badge */}
-            <p className="mt-8 text-gray-400 text-sm">
+            <p className="mt-8 text-gray-200 text-sm drop-shadow-md">
               ✓ Бесплатная регистрация • ✓ Без кредитной карты • ✓ Доступ ко всем функциям
             </p>
           </div>
