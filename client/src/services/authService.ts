@@ -1,25 +1,46 @@
 import api from '../api/api'
-import { LoginCredentials, RegisterData, AuthResponse } from '../types'
-import { AxiosResponse } from 'axios'
+import { RegisterData, LoginCredentials, AuthResponse, ApiResponse } from '../types'
 
 export const authService = {
-  login: (email: string, password: string): Promise<AxiosResponse<AuthResponse>> => {
-    return api.post('/auth/login', { email, password })
+  // Регистрация
+  register: async (userData: RegisterData): Promise<ApiResponse<AuthResponse>> => {
+    const response = await api.post('/auth/register', {
+      name: userData.name,
+      email: userData.email,
+      password: userData.password,
+    })
+    
+    return {
+      success: response.data.success,
+      data: {
+        token: response.data.token,
+        user: response.data.data
+      }
+    }
   },
 
-  register: (userData: RegisterData): Promise<AxiosResponse<AuthResponse>> => {
-    return api.post('/auth/register', userData)
+  // Вход
+  login: async (credentials: LoginCredentials): Promise<ApiResponse<AuthResponse>> => {
+    const response = await api.post('/auth/login', credentials)
+    
+    return {
+      success: response.data.success,
+      data: {
+        token: response.data.token,
+        user: response.data.data
+      }
+    }
   },
 
-  logout: (): Promise<AxiosResponse<void>> => {
-    return api.post('/auth/logout')
+  // Получить текущего пользователя
+  getMe: async (): Promise<ApiResponse<any>> => {
+    const response = await api.get('/auth/me')
+    return response.data
   },
 
-  getProfile: (): Promise<AxiosResponse<any>> => {
-    return api.get('/auth/profile')
-  },
-
-  updateProfile: (data: Partial<any>): Promise<AxiosResponse<any>> => {
-    return api.put('/auth/profile', data)
+  // Обновить профиль
+  updateProfile: async (userData: Partial<any>): Promise<ApiResponse<any>> => {
+    const response = await api.put('/auth/me', userData)
+    return response.data
   },
 }

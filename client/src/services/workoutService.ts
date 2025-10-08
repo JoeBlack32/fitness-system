@@ -1,57 +1,102 @@
 import api from '../api/api'
-import { Workout, CreateWorkoutData } from '../types'
-import { AxiosResponse } from 'axios'
+import { CreateWorkoutData, Workout, ApiResponse } from '../types'
 
 export const workoutService = {
-  // Получить все тренировки пользователя
-  getAll: (params?: { 
-    muscleGroup?: string, 
-    startDate?: string, 
-    endDate?: string,
-    limit?: number 
-  }): Promise<AxiosResponse<{ workouts: Workout[], total: number }>> => {
-    return api.get('/workouts', { params })
+  // Получить все тренировки
+  getAll: async (params?: any): Promise<ApiResponse<{ workouts: Workout[] }>> => {
+    const response = await api.get('/workouts', { params })
+    
+    return {
+      success: response.data.success,
+      data: {
+        workouts: response.data.data || []
+      }
+    }
   },
 
-  // Получить тренировку по ID
-  getById: (id: string): Promise<AxiosResponse<{ workout: Workout }>> => {
-    return api.get(`/workouts/${id}`)
+  // Получить одну тренировку
+  getById: async (id: string): Promise<ApiResponse<{ workout: Workout }>> => {
+    const response = await api.get(`/workouts/${id}`)
+    
+    return {
+      success: response.data.success,
+      data: {
+        workout: response.data.data
+      }
+    }
   },
 
-  // Создать новую тренировку
-  create: (data: CreateWorkoutData): Promise<AxiosResponse<{ workout: Workout }>> => {
-    return api.post('/workouts', data)
+  // Создать тренировку
+  create: async (data: CreateWorkoutData): Promise<ApiResponse<{ workout: Workout }>> => {
+    // Преобразуем данные в формат API бэкенда
+    const apiData = {
+      name: `${data.muscleGroup} - ${data.dayOfWeek}`,
+      type: 'strength',
+      date: data.date,
+      duration: 60, // По умолчанию
+      exercises: data.exercises.map(ex => ({
+        name: ex.name,
+        sets: ex.sets,
+        reps: ex.reps || 10,
+        weight: ex.weight || 0,
+      })),
+      notes: data.notes || '',
+    }
+
+    const response = await api.post('/workouts', apiData)
+    
+    // Преобразуем ответ API обратно в формат фронтенда
+    const workout: Workout = {
+      id: response.data.data.id,
+      muscleGroup: data.muscleGroup,
+      date: data.date,
+      dayOfWeek: data.dayOfWeek,
+      exercises: data.exercises,
+      notes: data.notes,
+      createdAt: response.data.data.createdAt,
+    }
+
+    return {
+      success: response.data.success,
+      data: { workout }
+    }
   },
 
   // Обновить тренировку
-  update: (id: string, data: Partial<Workout>): Promise<AxiosResponse<{ workout: Workout }>> => {
-    return api.put(`/workouts/${id}`, data)
+  update: async (id: string, data: Partial<Workout>): Promise<ApiResponse<{ workout: Workout }>> => {
+    const response = await api.put(`/workouts/${id}`, data)
+    
+    return {
+      success: response.data.success,
+      data: {
+        workout: response.data.data
+      }
+    }
   },
 
   // Удалить тренировку
-  delete: (id: string): Promise<AxiosResponse<{ message: string }>> => {
-    return api.delete(`/workouts/${id}`)
+  delete: async (id: string): Promise<ApiResponse<any>> => {
+    const response = await api.delete(`/workouts/${id}`)
+    return response.data
   },
 
-  // Получить статистику тренировок
-  getStats: (period: '7d' | '30d' | '90d' | 'all' = '30d'): Promise<AxiosResponse<{
-    totalWorkouts: number
-    totalExercises: number
-    mostFrequentGroup: string
-    workoutsByGroup: Record<string, number>
-    workoutsByWeek: { week: string, count: number }[]
-    averageSetsPerWorkout: number
-  }>> => {
-    return api.get(`/workouts/stats?period=${period}`)
+  // Получить последние тренировки
+  getRecent: async (limit: number = 10): Promise<ApiResponse<{ workouts: Workout[] }>> => {
+    const response = await api.get('/workouts', { 
+      params: { limit } 
+    })
+    
+    return {
+      success: response.data.success,
+      data: {
+        workouts: response.data.data || []
+      }
+    }
   },
 
-  // Получить тренировки по группе мышц
-  getByMuscleGroup: (muscleGroup: string): Promise<AxiosResponse<{ workouts: Workout[] }>> => {
-    return api.get(`/workouts/muscle-group/${muscleGroup}`)
+  // Получить статистику
+  getStats: async (params?: any): Promise<ApiResponse<any>> => {
+    const response = await api.get('/workouts/stats', { params })
+    return response.data
   },
-
-  // Получить последние N тренировок
-  getRecent: (limit: number = 10): Promise<AxiosResponse<{ workouts: Workout[] }>> => {
-    return api.get(`/workouts/recent?limit=${limit}`)
-  }
 }

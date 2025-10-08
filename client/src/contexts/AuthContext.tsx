@@ -1,7 +1,7 @@
 import { createContext, useState, useContext, useEffect, ReactNode } from 'react'
 import { authService } from '../services/authService'
 import toast from 'react-hot-toast'
-import { User, LoginCredentials, RegisterData } from '../types'
+import { User, RegisterData } from '../types'
 
 interface AuthContextType {
   user: User | null
@@ -46,28 +46,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }
 
   const login = async (email: string, password: string) => {
-    // ВРЕМЕННЫЙ КОСТЫЛЬ: Пропускаем любой email/password
     try {
-      // Имитируем задержку запроса
-      await new Promise(resolve => setTimeout(resolve, 500))
+      const response = await authService.login({ email, password })
+      const { token, user: userData } = response.data
       
-      const mockUser: User = {
-        id: '1',
-        name: email.split('@')[0], // Используем часть email как имя
-        email: email,
-        createdAt: new Date().toISOString()
-      }
+      localStorage.setItem('token', token)
+      localStorage.setItem('user', JSON.stringify(userData))
+      setUser(userData)
       
-      const mockToken = 'mock-token-' + Date.now()
-      
-      localStorage.setItem('token', mockToken)
-      localStorage.setItem('user', JSON.stringify(mockUser))
-      setUser(mockUser)
-      
-      toast.success(`Добро пожаловать, ${mockUser.name}!`)
+      toast.success(`Добро пожаловать, ${userData.name}!`)
       return { success: true }
     } catch (error: any) {
-      const message = 'Ошибка авторизации'
+      const message = error.response?.data?.message || 'Ошибка авторизации'
       toast.error(message)
       return { success: false, error: message }
     }

@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+// ✅ Теперь используем относительный путь (через proxy)
+const API_URL = import.meta.env.VITE_API_URL || '/api'
 
 const api: AxiosInstance = axios.create({
   baseURL: API_URL,
@@ -30,7 +31,12 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
-      window.location.href = '/login'
+      
+      // Не перенаправляем если уже на login/register
+      if (!window.location.pathname.includes('/login') && 
+          !window.location.pathname.includes('/register')) {
+        window.location.href = '/login'
+      }
     }
     return Promise.reject(error)
   }
