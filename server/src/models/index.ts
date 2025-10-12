@@ -2,7 +2,7 @@ import User from './User';
 import Workout from './Workout';
 import Program from './Program';
 import NutritionLog from './NutritionLog';
-
+import NutritionProfile from './NutritionProfile'; // ✅ УЖЕ ЕСТЬ
 
 // User -> Workouts (один ко многим)
 User.hasMany(Workout, {
@@ -37,9 +37,21 @@ NutritionLog.belongsTo(User, {
   as: 'user'
 });
 
+// User -> NutritionProfile (один к одному)
+User.hasOne(NutritionProfile, { 
+  foreignKey: 'userId', 
+  as: 'nutritionProfile',
+  onDelete: 'CASCADE' 
+});
+NutritionProfile.belongsTo(User, { 
+  foreignKey: 'userId', 
+  as: 'user' 
+});
+
 export {
   User,
   Workout,
   Program,
-  NutritionLog
+  NutritionLog,
+  NutritionProfile // ← Это должно быть!
 };

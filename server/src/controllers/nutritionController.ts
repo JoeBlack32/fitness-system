@@ -1,7 +1,8 @@
 import { Response } from 'express';
 import { Op } from 'sequelize';
-import { NutritionLog } from '../models';
+import { NutritionLog, NutritionProfile } from '../models';
 import { IAuthRequest, IApiResponse, IMeal } from '../types';
+
 
 // @desc    Получить все записи питания
 // @route   GET /api/nutrition
@@ -87,20 +88,23 @@ const calculateTotals = (meals: IMeal[]) => {
 // @desc    Создать/Обновить запись питания
 // @route   POST /api/nutrition
 // @access  Private
+// @desc    Создать/Обновить запись питания
+// @route   POST /api/nutrition
+// @access  Private
 export const createOrUpdateNutritionLog = async (req: IAuthRequest, res: Response): Promise<void> => {
   try {
-    const { date, meals, waterIntake, notes } = req.body;
+    const { date, weight, meals, waterIntake, notes } = req.body; // ⬅️ ДОБАВЬ weight
 
-    if (!date || !meals) {
+    if (!date) {  // ⬅️ УБЕРИ проверку meals
       res.status(400).json({
         success: false,
-        message: 'Please provide date and meals'
+        message: 'Please provide date'
       } as IApiResponse);
       return;
     }
 
     // Подсчитываем итоги
-    const totals = calculateTotals(meals);
+    const totals = meals && meals.length > 0 ? calculateTotals(meals) : { calories: 0, protein: 0, carbs: 0, fats: 0 }; // ⬅️ ИЗМЕНИЛ
 
     // Ищем существующую запись
     let log = await NutritionLog.findOne({
@@ -113,12 +117,13 @@ export const createOrUpdateNutritionLog = async (req: IAuthRequest, res: Respons
     if (log) {
       // Обновляем существующую запись
       log = await log.update({
-        meals,
+        weight: weight || log.weight, // ⬅️ ДОБАВИЛ
+        meals: meals || log.meals,
         totalCalories: totals.calories,
         totalProtein: totals.protein,
         totalCarbs: totals.carbs,
         totalFats: totals.fats,
-        waterIntake: waterIntake || 0,
+        waterIntake: waterIntake || log.waterIntake,
         notes
       });
     } else {
@@ -126,7 +131,8 @@ export const createOrUpdateNutritionLog = async (req: IAuthRequest, res: Respons
       log = await NutritionLog.create({
         userId: req.user?.id as string,
         date,
-        meals,
+        weight, // ⬅️ ДОБАВИЛ
+        meals: meals || [],
         totalCalories: totals.calories,
         totalProtein: totals.protein,
         totalCarbs: totals.carbs,
@@ -246,6 +252,7 @@ export const deleteNutritionLog = async (req: IAuthRequest, res: Response): Prom
   }
 };
 
+
 // @desc    Получить статистику питания
 // @route   GET /api/nutrition/stats
 // @access  Private
@@ -281,12 +288,132 @@ export const getNutritionStats = async (req: IAuthRequest, res: Response): Promi
       totalWater: logs.reduce((sum, log) => sum + log.waterIntake, 0)
     };
 
+    
+
     res.json({
       success: true,
       data: stats
     } as IApiResponse);
   } catch (error) {
     console.error('Get nutrition stats error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    } as IApiResponse);
+  }
+};
+
+// @desc    Получить профиль питания
+// @route   GET /api/nutrition/profile
+// @access  Private
+export const getNutritionProfile = async (req: IAuthRequest, res: Response): Promise<void> => {
+  try {
+    const profile = await NutritionProfile.findOne({
+      where: { userId: req.user?.id }
+    });
+
+    if (!profile) {
+      res.status(404).json({
+        success: false,
+        message: 'Nutrition profile not found'
+      } as IApiResponse);
+      return;
+    }
+
+    res.json({
+      success: true,
+      data: profile
+    } as IApiResponse);
+  } catch (error) {
+    console.error('Get nutrition profile error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    } as IApiResponse);
+  }
+};
+
+// @desc    Создать/Обновить профиль питания
+// @route   POST /api/nutrition/profile
+// @access  Private
+export const createOrUpdateProfile = async (req: IAuthRequest, res: Response): Promise<void> => {
+  try {
+    const { height, targetWeight, goal, activityLevel } = req.body;
+
+    if (!height || !targetWeight || !goal || !activityLevel) {
+      res.status(400).json({
+        success: false,
+        message: 'Please provide all required fields'
+      } as IApiResponse);
+      return;
+    }
+
+    let profile = await NutritionProfile.findOne({
+      where: { userId: req.user?.id }
+    });
+
+    if (profile) {
+      profile = await profile.update({
+        height,
+        targetWeight,
+        goal,
+        activityLevel
+      });
+    } else {
+      profile = await NutritionProfile.create({
+        userId: req.user?.id as string,
+        height,
+        targetWeight,
+        goal,
+        activityLevel
+      });
+    }
+
+    res.status(profile ? 200 : 201).json({
+      success: true,
+      data: profile
+    } as IApiResponse);
+  } catch (error) {
+    console.error('Create/Update nutrition profile error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    } as IApiResponse);
+  }
+};
+
+// @desc    Получить измерения веса (из NutritionLog)
+// @route   GET /api/nutrition/weight-logs
+// @access  Private
+export const getWeightLogs = async (req: IAuthRequest, res: Response): Promise<void> => {
+  try {
+    const { startDate, endDate } = req.query;
+    const userId = req.user?.id;
+
+    const where: any = { 
+      userId,
+      weight: { [Op.ne]: null } // Только записи с весом
+    };
+
+    if (startDate && endDate) {
+      where.date = {
+        [Op.between]: [startDate, endDate]
+      };
+    }
+
+    const logs = await NutritionLog.findAll({
+      where,
+      order: [['date', 'DESC']],
+      attributes: ['id', 'date', 'weight', 'totalCalories'] // ⬅️ УБРАЛ createdAt!
+    });
+
+    res.json({
+      success: true,
+      data: logs,
+      count: logs.length
+    } as IApiResponse);
+  } catch (error) {
+    console.error('Get weight logs error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error'

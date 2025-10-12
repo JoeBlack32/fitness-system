@@ -6,31 +6,17 @@ import { useWorkouts } from '../hooks/useWorkouts'
 import { Exercise, CreateWorkoutData } from '../types'
 
 const WorkoutLog = () => {
-  const { workouts, loading, createWorkout, deleteWorkout, setWorkouts } = useWorkouts()
+  const { workouts, loading, createWorkout, deleteWorkout, fetchWorkouts } = useWorkouts()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedGroup, setSelectedGroup] = useState('')
   const [selectedDate, setSelectedDate] = useState('')
   const [selectedDay, setSelectedDay] = useState('')
   const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([])
 
-  // Загрузка из localStorage при монтировании (временное решение до подключения API)
+  // ✅ Загружаем тренировки из API при монтировании
   useEffect(() => {
-    const savedWorkouts = localStorage.getItem('workouts')
-    if (savedWorkouts) {
-      try {
-        setWorkouts(JSON.parse(savedWorkouts))
-      } catch (error) {
-        console.error('Error loading workouts:', error)
-      }
-    }
+    fetchWorkouts()
   }, [])
-
-  // Сохранение в localStorage при изменении (временное решение)
-  useEffect(() => {
-    if (workouts.length > 0) {
-      localStorage.setItem('workouts', JSON.stringify(workouts))
-    }
-  }, [workouts])
 
   const muscleGroups = [
     { id: 'chest', name: 'Грудь', icon: '💪', color: 'from-blue-500 to-blue-600' },
@@ -121,7 +107,6 @@ const WorkoutLog = () => {
       return
     }
 
-    // Подготовка данных для API
     const workoutData: CreateWorkoutData = {
       muscleGroup: selectedGroup,
       date: selectedDate,
@@ -129,42 +114,22 @@ const WorkoutLog = () => {
       exercises: selectedExercises.map(e => ({
         name: e.name,
         sets: e.sets,
-        reps: 0, // можно добавить в будущем
+        reps: 0,
       }))
     }
 
-    // Попытка отправить на сервер
+    // ✅ Отправляем на сервер
     const result = await createWorkout(workoutData)
 
-    // Если API не работает (нет бэкенда), сохраняем локально
-    if (!result.success) {
-      // Создаем тренировку локально
-      const localWorkout = {
-        id: Date.now().toString(),
-        muscleGroup: selectedGroup,
-        date: selectedDate,
-        dayOfWeek: selectedDay,
-        exercises: selectedExercises,
-        createdAt: new Date().toISOString()
-      }
-      
-      setWorkouts([localWorkout, ...workouts])
+    if (result.success) {
+      setIsModalOpen(false)
+      setSelectedExercises([])
     }
-
-    setIsModalOpen(false)
-    setSelectedExercises([])
   }
 
   const handleDeleteWorkout = async (id: string) => {
     if (!window.confirm('Удалить эту тренировку?')) return
-    
-    // Пытаемся удалить через API
-    const result = await deleteWorkout(id)
-    
-    // Если API не работает, удаляем локально
-    if (!result.success) {
-      setWorkouts(workouts.filter(w => w.id !== id))
-    }
+    await deleteWorkout(id)
   }
 
   const getGroupName = (groupId: string) => {
@@ -268,7 +233,6 @@ const WorkoutLog = () => {
         size="lg"
       >
         <div className="space-y-6">
-          {/* Дата и день недели */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">Дата</label>
@@ -293,7 +257,6 @@ const WorkoutLog = () => {
             </div>
           </div>
 
-          {/* Упражнения */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-3">
               Выберите упражнения (минимум 1)
@@ -341,7 +304,6 @@ const WorkoutLog = () => {
             </div>
           </div>
 
-          {/* Кнопки */}
           <div className="flex gap-3 pt-4">
             <Button onClick={handleSaveWorkout} fullWidth disabled={loading}>
               {loading ? 'Сохранение...' : `Сохранить тренировку (${selectedExercises.length})`}
@@ -356,4 +318,4 @@ const WorkoutLog = () => {
   )
 }
 
-export default WorkoutLog
+export default WorkoutLog 

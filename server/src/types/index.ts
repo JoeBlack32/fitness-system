@@ -147,6 +147,7 @@ export interface INutritionLogAttributes {
   id: string;
   userId: string;
   date: string;
+  weight?: number;
   meals: IMeal[];
   totalCalories: number;
   totalProtein: number;
@@ -177,4 +178,21 @@ export interface IApiResponse<T = any> {
   data?: T;
   token?: string;
   error?: string;
+}
+
+export enum NutritionGoal {
+  LOSS = 'loss',
+  MAINTAIN = 'maintain',
+  GAIN = 'gain'
+}
+
+export interface INutritionProfileAttributes {
+  id: string;
+  userId: string;
+  height: number;
+  targetWeight: number;
+  goal: NutritionGoal;
+  activityLevel: number;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

@@ -18,6 +18,7 @@ class NutritionLog extends Model<INutritionLogAttributes, NutritionLogCreationAt
 
   public readonly createdAt!: Date;
   public readonly updatedAt!: Date;
+  weight: any;
 }
 
 NutritionLog.init(
@@ -41,6 +42,11 @@ NutritionLog.init(
       type: DataTypes.DATEONLY,
       allowNull: false,
       defaultValue: DataTypes.NOW
+    },
+     weight: {  
+      type: DataTypes.FLOAT,
+      allowNull: true,
+      comment: 'Body weight in kg for this date'
     },
     meals: {
       type: DataTypes.JSONB,

@@ -5,7 +5,10 @@ import {
   createOrUpdateNutritionLog,
   addMealToLog,
   deleteNutritionLog,
-  getNutritionStats
+  getNutritionStats,
+  getNutritionProfile,      
+  createOrUpdateProfile,    
+  getWeightLogs   
 } from '../controllers/nutritionController';
 import { protect } from '../middlewares/auth';
 
@@ -19,6 +22,12 @@ router.route('/')
   .post(createOrUpdateNutritionLog);
 
 router.get('/stats', getNutritionStats);
+
+router.route('/profile')
+  .get(getNutritionProfile)
+  .post(createOrUpdateProfile);
+
+router.get('/weight-logs', getWeightLogs);
 
 router.route('/:date')
   .get(getNutritionByDate)
